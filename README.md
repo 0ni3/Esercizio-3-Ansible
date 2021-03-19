@@ -71,8 +71,11 @@ in /etc/ansible/hosts
 ## www[001:006].example.com
 
 [servers]
-host1 ansible_ssh_host=192.168.1.215
-host2 ansible_ssh_host=192.168.1.199
+192.168.1.215
+192.168.1.199
+
+[web]
+192.168.1.215
 
 ```
 
@@ -199,5 +202,46 @@ ansible servers -m "shell" -a "yum update -y" -b
 ```
 
 
+ho creato il file di configurazione per apache sotto la dir roles
 
+```
+[vagrant@localhost roles]$ sudo nano apache.yml 
+[vagrant@localhost roles]$ cat apache.yml 
+---
+- hosts: web
+  tasks: 
+   - name: Install httpd
+     yum: name=httpd state=present
+     become: yes
+   - name: start and enable httpd service
+     service: name=httpd state=restarted enabled=yes
+     become: yes
+```
+
+quindi tramite ansible ho installato httpd e l'ha abilitato
+```
+[vagrant@localhost roles]$ ansible-playbook apache.yml
+
+PLAY [web] *************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [192.168.1.215]
+
+TASK [Install httpd] ***************************************************************************************************************************************************
+ok: [192.168.1.215]
+
+TASK [start and enable httpd service] **********************************************************************************************************************************
+changed: [192.168.1.215]
+
+PLAY RECAP *************************************************************************************************************************************************************
+192.168.1.215              : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+
+quindi tramite la documentazione di ansible https://docs.ansible.com/ansible/2.3/yum_module.html, ho capito come installare apache.
+
+ho anche consultato questo link https://www.scaleway.com/en/docs/how-to-install-apache-on-ansible/
+
+piu o meno ho capito come installare un pacchetto yum sotto ansible.. mi resta di capire come copiare i file di configurazione dei servizi che installo!
+
+manca la parte di docker con jenkins
 
